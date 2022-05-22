@@ -21,7 +21,7 @@ public class UI : MonoBehaviour
         int blobCount = GameManager.instance.blobs.Count;
         int activeBlobCount = blobCount - GameManager.instance.inactiveBlobs.Count;
 
-        if (activeBlobCount != prevActiveBlobCount && prevActiveBlobCount <= blobCount)
+        if (activeBlobCount != prevActiveBlobCount)
         {
             prevActiveBlobCount = activeBlobCount;
 

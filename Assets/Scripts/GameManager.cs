@@ -36,9 +36,11 @@ public class GameManager : MonoBehaviour
     public List<Blob> inactiveBlobs { get; private set; } = new List<Blob>();
     public List<Blob> blobs { get; private set; } = new List<Blob>();
     public bool allBlobIsActive => inactiveBlobs.Count == 0;
-    public bool disableCollision { get; private set; } = false;
 
     private float targetCameraOrthographicSize;
+    private bool autoZoomOut = false;
+    private bool enableCollision = true;
+    private Resolution blobResolution = Resolution.high;
 
     // Start is called before the first frame update
     void Start()
@@ -57,69 +59,109 @@ public class GameManager : MonoBehaviour
             Vector2 mousePositionOnWorld = camera.ScreenToWorldPoint(mousePositionOnScreen);
             Vector2 randomOffest = new Vector2(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
 
-            int randomIndex = Random.Range(0, inactiveBlobs.Count);
-            Blob blob = inactiveBlobs[randomIndex];
-            inactiveBlobs.RemoveAt(randomIndex);
+            ActivateRandomBlob(mousePositionOnWorld + randomOffest);
+        }
 
-            blob.transform.position = mousePositionOnWorld + randomOffest;
-            blob.gameObject.SetActive(true);
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            autoZoomOut = !autoZoomOut;
         }
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            disableCollision = !disableCollision;
+            enableCollision = !enableCollision;
+            blobs.ForEach(b => b.SetColliderEnabled(enableCollision));
         }
 
-        if (Input.GetKeyDown(KeyCode.X))
+        if (Input.GetKeyDown(KeyCode.G))
         {
             blobs.ForEach(b => b.goToFinalPosition = true);
         }
 
-        if (Input.GetKeyDown(KeyCode.T))
+        if (Input.GetKeyDown(KeyCode.S))
         {
-            foreach (Blob blob in blobs)
+            while (inactiveBlobs.Count > 0)
             {
-                Vector2 position = new Vector2(Random.Range(0f, 167f) - image.width / 2f, Random.Range(0f, 167f) - image.height / 2f);
+                Vector2 position = new Vector2(Random.Range(0f, image.width) - image.width / 2f, Random.Range(0f, image.height) - image.height / 2f);
 
-                blob.transform.position = position;
-                blob.gameObject.SetActive(true);
-
-                inactiveBlobs.Clear();
+                ActivateRandomBlob(position);
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.P))
+        if (Input.GetKeyDown(KeyCode.F))
         {
-            foreach (Blob blob in blobs)
+            while (inactiveBlobs.Count > 0)
             {
-                blob.transform.position = blob.finalPosition;
-                blob.goToFinalPosition = true;
-                blob.gameObject.SetActive(true);
-
-                inactiveBlobs.Clear();
+                ActivateRandomBlob(Vector2.zero);
             }
+
+            blobs.ForEach(b =>
+            {
+                b.transform.position = b.finalPosition;
+                b.goToFinalPosition = true;
+            });
         }
 
-        targetCameraOrthographicSize -= Input.mouseScrollDelta.y;
+        if (Input.mouseScrollDelta.y != 0)
+        {
+            targetCameraOrthographicSize -= Input.mouseScrollDelta.y;
+
+            if (targetCameraOrthographicSize < 10)
+                ChangeBlobResolution(Resolution.high);
+            else if (targetCameraOrthographicSize < 30)
+                ChangeBlobResolution(Resolution.medium);
+            else
+                ChangeBlobResolution(Resolution.low);
+        }
         targetCameraOrthographicSize = Mathf.Clamp(targetCameraOrthographicSize, minCameraOrthographicSize, maxCameraOrthographicSize);
         camera.orthographicSize = Mathf.Lerp(camera.orthographicSize, targetCameraOrthographicSize, zoomSpeed * Time.deltaTime);
 
-        if (allBlobIsActive == true)
+        if (autoZoomOut == true)
         {
             targetCameraOrthographicSize = Mathf.MoveTowards(targetCameraOrthographicSize, maxCameraOrthographicSize, Time.deltaTime);
+
+            if (targetCameraOrthographicSize >= maxCameraOrthographicSize)
+                autoZoomOut = false;
         }
     }
 
-    private void FixedUpdate()
+    private void ChangeBlobResolution(Resolution resolution)
     {
-        if (allBlobIsActive == true)
-        {
-            int randomIndex = Random.Range(0, blobs.Count);
-            Blob blob = blobs[randomIndex];
-            blobs.RemoveAt(randomIndex);
+        if (blobResolution == resolution)
+            return;
 
-            blob.goToFinalPosition = true;
+        blobResolution = resolution;
+
+        blobs.ForEach(b => b.SetResolution(blobResolution));
+    }
+
+    private Blob ActivateRandomBlob(Vector2 position)
+    {
+        if (inactiveBlobs.Count == 0)
+            return null;
+
+        Blob blob = inactiveBlobs[Random.Range(0, inactiveBlobs.Count)];
+
+        return ActivateBlob(position, blob);
+    }
+
+    private Blob ActivateBlob(Vector2 position, Blob blob)
+    {
+        int inactiveBlobCount = inactiveBlobs.Count;
+
+        inactiveBlobs.Remove(blob);
+
+        if (inactiveBlobCount > 0 && inactiveBlobs.Count == 0) // when the last blob is activate
+        {
+            autoZoomOut = true;
+            blobs.ForEach(b => b.goToFinalPosition = true);
         }
+
+        blob.transform.position = position;
+        blob.gameObject.SetActive(true);
+
+
+        return blob;
     }
 
     private void CreateBlobs()
@@ -129,7 +171,7 @@ public class GameManager : MonoBehaviour
             {
                 Color color = image.GetPixel(i, j);
 
-                if (color.a <= 0.1f)
+                if (color.a <= 0.2f)
                     continue;
 
                 Vector2 position = new Vector2(i - image.width / 2f, j - image.height / 2f);
@@ -137,6 +179,7 @@ public class GameManager : MonoBehaviour
                 Blob blob = Instantiate(blobPrefab);
                 blob.color = color;
                 blob.finalPosition = position;
+                blob.SetResolution(blobResolution);
                 blob.gameObject.SetActive(false);
 
                 blobs.Add(blob);

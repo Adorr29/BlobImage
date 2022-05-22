@@ -497,7 +497,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   camera: {fileID: 519420031}
   blobPrefab: {fileID: 5656349802112802946, guid: 4ed0a4aed6155334c8a4f39568dd2c93, type: 3}
-  image: {fileID: 2800000, guid: 5cb2cb7dc8f29904b934c5153cc0358d, type: 3}
+  image: {fileID: 2800000, guid: 9008e505604616a46818c9efe19a06e5, type: 3}
   minCameraOrthographicSize: 5
   maxCameraOrthographicSize: 80
   zoomSpeed: 5

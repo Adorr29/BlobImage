@@ -2,9 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum Resolution
+{
+    low,
+    medium,
+    high
+}
+
 public class Blob : MonoBehaviour
 {
-    public SpriteRenderer body;
+    public SpriteRenderer bodySpriteRenderer;
+    public new Collider2D collider;
+    public Sprite highResolutionBodySprite;
+    public Sprite mediumResolutionBodySprite;
+    public Sprite lowResolutionBodySprite;
 
     [Space]
 
@@ -15,6 +26,7 @@ public class Blob : MonoBehaviour
     public Color color;
     public Vector2 finalPosition;
     public bool goToFinalPosition = false;
+    public Resolution resolution { get; private set; }
 
     private Vector2? randomTargetPosition = null;
     private float waitBeforeNextRandomMove;
@@ -29,7 +41,7 @@ public class Blob : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        body.color = color;
+        bodySpriteRenderer.color = color;
 
         waitBeforeNextRandomMove = Random.Range(1f, 3f);
     }
@@ -98,9 +110,6 @@ public class Blob : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (GameManager.instance.disableCollision == true)
-            return;
-
         Blob otherBlob = collision.GetComponent<Blob>();
 
         if (otherBlob == null)
@@ -117,5 +126,25 @@ public class Blob : MonoBehaviour
 
         rb.AddForce(myDirection * force); // TODO normalized ?
         otherBlob.rb.AddForce(otherBlobDirection * force); // TODO normalized ?
+    }
+
+    public void SetColliderEnabled(bool enabled)
+    {
+        collider.enabled = enabled;
+    }
+
+    public void SetResolution(Resolution newResolution)
+    {
+        if (resolution == newResolution)
+            return;
+
+        resolution = newResolution;
+
+        if (resolution == Resolution.low)
+            bodySpriteRenderer.sprite = lowResolutionBodySprite;
+        else if (resolution == Resolution.medium)
+            bodySpriteRenderer.sprite = mediumResolutionBodySprite;
+        else if (resolution == Resolution.high)
+            bodySpriteRenderer.sprite = highResolutionBodySprite;
     }
 }

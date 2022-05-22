@@ -84,7 +84,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ca6ec8fa2a32e841b06d208fe072b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  body: {fileID: 5938607983162157187}
+  bodySpriteRenderer: {fileID: 5938607983162157187}
+  collider: {fileID: 5656349802112802947}
+  highResolutionBodySprite: {fileID: 21300000, guid: 724adbd2f39a11347ad964c5f4986a9c, type: 3}
+  mediumResolutionBodySprite: {fileID: 21300000, guid: cee33a022fbc94d4294aec1a1eb9b940, type: 3}
+  lowResolutionBodySprite: {fileID: 21300000, guid: fdd4230d4c4bb1e498127f0857ffb03b, type: 3}
   moveForce: 10
   color: {r: 0.6509804, g: 0.8156863, b: 0.28235295, a: 1}
   finalPosition: {x: 3, y: 1}
@@ -162,7 +166,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 5e8d2fccd8b7b75438008fe565520cf2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: cee33a022fbc94d4294aec1a1eb9b940, type: 3}
   m_Color: {r: 0.62352943, g: 0.62352943, b: 0.62352943, a: 1}
   m_FlipX: 0
   m_FlipY: 0
