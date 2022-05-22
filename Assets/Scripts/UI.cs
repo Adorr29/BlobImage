@@ -5,7 +5,8 @@ using UnityEngine;
 
 public class UI : MonoBehaviour
 {
-    public TMP_Text textBlobCount;
+    public TMP_Text blobCountText;
+    public Animator blobCountAnimator;
 
     private int prevActiveBlobCount = -1;
 
@@ -25,7 +26,12 @@ public class UI : MonoBehaviour
         {
             prevActiveBlobCount = activeBlobCount;
 
-            textBlobCount.text = activeBlobCount + " / " + blobCount;
+            blobCountText.text = activeBlobCount + " / " + blobCount;
+
+            blobCountAnimator.Play("CountUp");
+
+            if (activeBlobCount >= blobCount)
+                blobCountAnimator.Play("CountDone");
         }
     }
 }
