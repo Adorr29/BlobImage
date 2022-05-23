@@ -32,11 +32,12 @@ public class GameManager : MonoBehaviour
     public float minCameraOrthographicSize;
     public float maxCameraOrthographicSize;
     public float zoomSpeed;
+    public float cameraSpeed;
 
     public List<Blob> inactiveBlobs { get; private set; } = new List<Blob>();
     public List<Blob> blobs { get; private set; } = new List<Blob>();
-    public bool allBlobIsActive => inactiveBlobs.Count == 0;
 
+    private Vector2 targetCameraPosition;
     private float targetCameraOrthographicSize;
     private bool autoZoomOut = false;
     private bool enableCollision = true;
@@ -52,9 +53,18 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        float screenRatio = Screen.width / Screen.height;
         Vector2 mousePositionOnScreen = Input.mousePosition;
+        Vector2 mouseRelativePositionOnScreen = mousePositionOnScreen - new Vector2(Screen.width, Screen.height) / 2f;
+        Vector2 mouseRelativePositionOnScreenNormalized = mouseRelativePositionOnScreen / new Vector2(Screen.width, Screen.height);
 
-        if (Input.GetMouseButton(0))
+        targetCameraPosition = new Vector2((maxCameraOrthographicSize - targetCameraOrthographicSize) * screenRatio, maxCameraOrthographicSize - targetCameraOrthographicSize) * mouseRelativePositionOnScreenNormalized;
+
+        Vector3 cameraPosition = Vector2.Lerp(camera.transform.position, targetCameraPosition, cameraSpeed * Time.deltaTime);
+        cameraPosition.z = -10;
+        camera.transform.position = cameraPosition;
+
+        if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) && MouseMove())
         {
             Vector2 mousePositionOnWorld = camera.ScreenToWorldPoint(mousePositionOnScreen);
             Vector2 randomOffest = new Vector2(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
@@ -123,6 +133,11 @@ public class GameManager : MonoBehaviour
             if (targetCameraOrthographicSize >= maxCameraOrthographicSize)
                 autoZoomOut = false;
         }
+    }
+
+    private bool MouseMove()
+    {
+        return Input.GetAxis("Mouse X") != 0 || Input.GetAxis("Mouse Y") != 0;
     }
 
     private void ChangeBlobResolution(Resolution resolution)

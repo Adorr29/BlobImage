@@ -502,6 +502,7 @@ MonoBehaviour:
   minCameraOrthographicSize: 5
   maxCameraOrthographicSize: 80
   zoomSpeed: 5
+  cameraSpeed: 0.8
 --- !u!4 &1036724858
 Transform:
   m_ObjectHideFlags: 0
@@ -653,7 +654,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278495236
+    rgba: 4284835173
   m_fontColor: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
