@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviour
 
     public List<Blob> inactiveBlobs { get; private set; } = new List<Blob>();
     public List<Blob> blobs { get; private set; } = new List<Blob>();
+    public bool displayHelp { get; private set; } = false;
 
     private Vector2 targetCameraPosition;
     private float targetCameraOrthographicSize;
@@ -63,6 +64,11 @@ public class GameManager : MonoBehaviour
         Vector3 cameraPosition = Vector2.Lerp(camera.transform.position, targetCameraPosition, cameraSpeed * Time.deltaTime);
         cameraPosition.z = -10;
         camera.transform.position = cameraPosition;
+
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            displayHelp = !displayHelp;
+        }
 
         if (Input.GetMouseButtonDown(0) || Input.GetMouseButton(0) && MouseMove())
         {

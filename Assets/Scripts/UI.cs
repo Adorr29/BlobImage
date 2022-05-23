@@ -7,6 +7,7 @@ public class UI : MonoBehaviour
 {
     public TMP_Text blobCountText;
     public Animator blobCountAnimator;
+    public Transform helpUI;
 
     private int prevActiveBlobCount = -1;
 
@@ -33,5 +34,7 @@ public class UI : MonoBehaviour
             if (activeBlobCount >= blobCount)
                 blobCountAnimator.Play("CountDone");
         }
+
+        helpUI.gameObject.SetActive(GameManager.instance.displayHelp);
     }
 }
