@@ -1,5 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 
@@ -28,9 +31,8 @@ public class GameManager : MonoBehaviour
 
     [Space]
 
-    public Texture2D image;
     public float minCameraOrthographicSize;
-    public float maxCameraOrthographicSize;
+    public float maxCameraOrthographicSize; // override by script
     public float zoomSpeed;
     public float cameraSpeed;
 
@@ -38,6 +40,7 @@ public class GameManager : MonoBehaviour
     public List<Blob> blobs { get; private set; } = new List<Blob>();
     public bool displayHelp { get; private set; } = false;
 
+    private Texture2D image = null;
     private Vector2 targetCameraPosition;
     private float targetCameraOrthographicSize;
     private bool autoZoomOut = false;
@@ -47,7 +50,14 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        LoadImage();
+
+        if (image == null)
+            return;
+
+        maxCameraOrthographicSize = image.height / 2f;
         targetCameraOrthographicSize = camera.orthographicSize;
+
         CreateBlobs();
     }
 
@@ -206,5 +216,28 @@ public class GameManager : MonoBehaviour
                 blobs.Add(blob);
                 inactiveBlobs.Add(blob);
             }
+    }
+
+    private void LoadImage()
+    {
+        string path = Directory.GetFiles(Application.streamingAssetsPath, "*.png").FirstOrDefault();
+
+        if (path == null)
+            return;
+
+        byte[] bytes = File.ReadAllBytes(path);
+
+        image = new Texture2D(0, 0);
+        image.LoadImage(bytes);
+
+        string fileName = Path.GetFileName(path);
+        Match match = Regex.Match(fileName, "#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})");
+
+        if (match.Success == false)
+            return;
+
+        ColorUtility.TryParseHtmlString(match.Value, out Color color);
+
+        camera.backgroundColor = color;
     }
 }
