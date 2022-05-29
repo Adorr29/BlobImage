@@ -46,6 +46,9 @@ public class GameManager : MonoBehaviour
     private bool autoZoomOut = false;
     private bool enableCollision = true;
     private Resolution blobResolution = Resolution.high;
+    private bool autoDisableCollision = true;
+    List<float> fpsHistoric = new List<float>();
+    private const int fpsHistoricLength = 30;
 
     // Start is called before the first frame update
     void Start()
@@ -95,8 +98,7 @@ public class GameManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.C))
         {
-            enableCollision = !enableCollision;
-            blobs.ForEach(b => b.SetColliderEnabled(enableCollision));
+            SetBlobCollisions(!enableCollision);
         }
 
         if (Input.GetKeyDown(KeyCode.G))
@@ -149,6 +151,23 @@ public class GameManager : MonoBehaviour
             if (targetCameraOrthographicSize >= maxCameraOrthographicSize)
                 autoZoomOut = false;
         }
+
+        if (autoDisableCollision == true)
+        {
+            float fps = 1f / Time.deltaTime;
+
+            fpsHistoric.Add(fps);
+
+            while (fpsHistoric.Count > fpsHistoricLength)
+                fpsHistoric.RemoveAt(0);
+
+            float averageFps = fpsHistoric.Sum() / fpsHistoric.Count();
+
+            Debug.Log("fps : " + averageFps);
+
+            if (averageFps < 15f)
+                SetBlobCollisions(false);
+        }
     }
 
     private bool MouseMove()
@@ -164,6 +183,13 @@ public class GameManager : MonoBehaviour
         blobResolution = resolution;
 
         blobs.ForEach(b => b.SetResolution(blobResolution));
+    }
+
+    private void SetBlobCollisions(bool value)
+    {
+        enableCollision = value;
+        blobs.ForEach(b => b.SetColliderEnabled(value));
+        autoDisableCollision = false;
     }
 
     private Blob ActivateRandomBlob(Vector2 position)
