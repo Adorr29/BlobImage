@@ -163,8 +163,6 @@ public class GameManager : MonoBehaviour
 
             float averageFps = fpsHistoric.Sum() / fpsHistoric.Count();
 
-            Debug.Log("fps : " + averageFps);
-
             if (averageFps < 15f)
                 SetBlobCollisions(false);
         }
